@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devicedata>
+  <copyright>Open Source (MIT License)</copyright>
+  <creator>Open Source</creator>
+  <manufacturer>Ubiquiti</manufacturer>
+  <name>UniFi Protect</name>
+  <model>UniFi Protect (Master)</model>
+  <created>10/18/2026 12:00 PM</created>
+  <modified>10/18/2026 12:00 PM</modified>
+  <version>101</version>
+  <control>lua_gen</control>
+  <controlmethod>ip</controlmethod>
+  <driver>DriverWorks</driver>
+  <minimum_os_version>3.3.0</minimum_os_version>
+  <small image_source="c4z">icons/device_sm.png</small>
+  <large image_source="c4z">icons/device_lg.png</large>
+
+  <composer_categories>
+    <category>Cameras</category>
+  </composer_categories>
+
+  <!-- Combo driver: no standard Control4 proxy, so the driver is its own proxy
+       (proxy name = .c4z file name). Without this Composer adds nothing visible. -->
+  <combo>true</combo>
+  <proxies qty="1">
+    <proxy proxybindingid="5001" name="UniFi Protect" primary="True" image_source="c4z" small_image="icons/device_sm.png" large_image="icons/device_lg.png">unifi_protect</proxy>
+  </proxies>
+
+  <connections>
+    <!-- Child drivers (cameras, doorbells, SuperLink sensors, sirens) bind here.
+         Children also find the master automatically when it is the only one. -->
+    <connection>
+      <id>1</id>
+      <facing>6</facing>
+      <connectionname>Protect Devices</connectionname>
+      <type>1</type>
+      <consumer>False</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class>
+          <classname>UNIFI_PROTECT</classname>
+        </class>
+      </classes>
+    </connection>
+  </connections>
+
+  <config>
+    <documentation file="www/documentation.html"/>
+    <script file="driver.lua"/>
+
+    <actions>
+      <action><name>Reconnect</name><command>Reconnect</command></action>
+      <action><name>Refresh Devices</name><command>RefreshDevices</command></action>
+      <action><name>Recreate Camera Streams</name><command>RecreateStreams</command></action>
+      <action><name>Find Child Drivers</name><command>PingChildren</command></action>
+      <action><name>Print Devices to Lua Output</name><command>PrintDevices</command></action>
+    </actions>
+
+    <events>
+      <event><id>1</id><name>Console Online</name><description>Connected to the UniFi Protect console</description></event>
+      <event><id>2</id><name>Console Offline</name><description>Lost connection to the UniFi Protect console</description></event>
+      <event><id>3</id><name>Any Doorbell Ring</name><description>Any UniFi Protect doorbell was pressed</description></event>
+    </events>
+
+    <commands>
+      <command>
+        <name>Reconnect</name>
+        <description>Reconnect to UniFi Protect</description>
+      </command>
+      <command>
+        <name>RefreshDevices</name>
+        <description>Refresh UniFi Protect device list</description>
+      </command>
+    </commands>
+
+    <properties>
+      <property>
+        <name>Driver Version</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Connection Status</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>Not configured</default>
+      </property>
+
+      <property>
+        <name>Console Setup</name>
+        <type>LABEL</type>
+        <default>UniFi OS Console / NVR</default>
+      </property>
+      <property>
+        <name>Console Address</name>
+        <type>STRING</type>
+        <default></default>
+        <tooltip>IP address or host name of the UniFi OS console or NVR running Protect</tooltip>
+      </property>
+      <property>
+        <name>Console Port</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>65535</maximum>
+        <default>443</default>
+      </property>
+      <property>
+        <name>API Key</name>
+        <type>STRING</type>
+        <password>true</password>
+        <default></default>
+        <tooltip>UniFi OS > Settings > Control Plane > Integrations > Create API Key</tooltip>
+      </property>
+
+      <property>
+        <name>History and Playback</name>
+        <type>LABEL</type>
+        <default>Optional local user (event history, recordings)</default>
+      </property>
+      <property>
+        <name>Local Username</name>
+        <type>STRING</type>
+        <default></default>
+        <tooltip>A local UniFi OS user with view access to Protect (not a UI.com SSO account with MFA)</tooltip>
+      </property>
+      <property>
+        <name>Local Password</name>
+        <type>STRING</type>
+        <password>true</password>
+        <default></default>
+      </property>
+      <property>
+        <name>Recordings Access</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>Disabled</default>
+      </property>
+
+      <property>
+        <name>Video</name>
+        <type>LABEL</type>
+        <default>Video and Media Server</default>
+      </property>
+      <property>
+        <name>Stream Transport</name>
+        <type>LIST</type>
+        <items>
+          <item>RTSP</item>
+          <item>RTSPS</item>
+        </items>
+        <default>RTSP</default>
+        <tooltip>RTSP (port 7447) works on all Navigators. RTSPS (7441) is encrypted.</tooltip>
+      </property>
+      <property>
+        <name>Snapshot Quality</name>
+        <type>LIST</type>
+        <items>
+          <item>Standard</item>
+          <item>High</item>
+        </items>
+        <default>Standard</default>
+      </property>
+      <property>
+        <name>Live MJPEG FPS</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>5</maximum>
+        <default>2</default>
+      </property>
+      <property>
+        <name>Playback FPS</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>5</maximum>
+        <default>2</default>
+      </property>
+      <property>
+        <name>Media Server Port</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1024</minimum>
+        <maximum>65535</maximum>
+        <default>8641</default>
+      </property>
+      <property>
+        <name>Media Server Address</name>
+        <type>STRING</type>
+        <default>Auto</default>
+        <tooltip>Controller IP Navigators use for snapshots and playback. Leave as Auto unless the controller has several addresses.</tooltip>
+      </property>
+      <property>
+        <name>Media Server</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+
+      <property>
+        <name>Status</name>
+        <type>LABEL</type>
+        <default>Status</default>
+      </property>
+      <property>
+        <name>Protect Version</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Realtime Events</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Cameras</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>0</default>
+      </property>
+      <property>
+        <name>Sensors</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>0</default>
+      </property>
+      <property>
+        <name>Sirens</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>0</default>
+      </property>
+      <property>
+        <name>Children Connected</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>0</default>
+      </property>
+      <property>
+        <name>Debug Logging</name>
+        <type>LIST</type>
+        <items>
+          <item>Off</item>
+          <item>On</item>
+        </items>
+        <default>Off</default>
+      </property>
+    </properties>
+  </config>
+</devicedata>
