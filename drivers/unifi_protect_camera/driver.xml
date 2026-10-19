@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devicedata>
+  <copyright>Open Source (MIT License)</copyright>
+  <creator>Open Source</creator>
+  <manufacturer>Ubiquiti</manufacturer>
+  <name>UniFi Protect Camera</name>
+  <model>UniFi Protect Camera / Doorbell</model>
+  <created>10/18/2026 12:00 PM</created>
+  <modified>10/18/2026 12:00 PM</modified>
+  <version>101</version>
+  <control>lua_gen</control>
+  <controlmethod>ip</controlmethod>
+  <driver>DriverWorks</driver>
+  <minimum_os_version>3.3.0</minimum_os_version>
+  <small image_source="c4z">icons/device_sm.png</small>
+  <large image_source="c4z">icons/device_lg.png</large>
+
+  <composer_categories>
+    <category>Cameras</category>
+  </composer_categories>
+
+  <proxies qty="1">
+    <proxy proxybindingid="5001" name="UniFi Camera" primary="True">camera</proxy>
+  </proxies>
+
+  <capabilities>
+    <has_extras>True</has_extras>
+    <requires_dynamic_stream_urls>True</requires_dynamic_stream_urls>
+    <requires_dynamic_snapshot_urls>True</requires_dynamic_snapshot_urls>
+    <dynamic_urls_use_type>MULTIPLE</dynamic_urls_use_type>
+    <modes>SNAPSHOT,MJPEG,H264</modes>
+    <aspect_ratio>16x9,4x3,1x1</aspect_ratio>
+    <default_aspect_ratio>16x9</default_aspect_ratio>
+    <default_http_port>8641</default_http_port>
+    <default_rtsp_port>7447</default_rtsp_port>
+    <default_authentication_required>False</default_authentication_required>
+    <default_authentication_type>BASIC</default_authentication_type>
+    <default_username></default_username>
+    <default_password></default_password>
+    <address_readonly>True</address_readonly>
+    <show_test_url>True</show_test_url>
+    <has_pan>False</has_pan>
+    <has_tilt>False</has_tilt>
+    <has_zoom>False</has_zoom>
+    <has_home>False</has_home>
+    <has_night_mode>False</has_night_mode>
+    <number_presets>0</number_presets>
+  </capabilities>
+
+  <connections>
+    <connection proxybindingid="5001">
+      <id>5001</id>
+      <facing>6</facing>
+      <connectionname>Camera</connectionname>
+      <type>2</type>
+      <consumer>False</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class><classname>CAMERA</classname></class>
+      </classes>
+      <hidden>True</hidden>
+    </connection>
+    <connection>
+      <id>1</id>
+      <facing>6</facing>
+      <connectionname>UniFi Protect</connectionname>
+      <type>1</type>
+      <consumer>True</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class><classname>UNIFI_PROTECT</classname></class>
+      </classes>
+    </connection>
+    <connection>
+      <id>100</id>
+      <facing>6</facing>
+      <connectionname>Doorbell Button</connectionname>
+      <type>1</type>
+      <consumer>False</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class><classname>CONTACT_SENSOR</classname></class>
+      </classes>
+    </connection>
+    <connection>
+      <id>101</id>
+      <facing>6</facing>
+      <connectionname>Motion</connectionname>
+      <type>1</type>
+      <consumer>False</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class><classname>CONTACT_SENSOR</classname></class>
+      </classes>
+    </connection>
+    <connection>
+      <id>102</id>
+      <facing>6</facing>
+      <connectionname>Smart Detection</connectionname>
+      <type>1</type>
+      <consumer>False</consumer>
+      <audiosource>False</audiosource>
+      <videosource>False</videosource>
+      <linelevel>False</linelevel>
+      <classes>
+        <class><classname>CONTACT_SENSOR</classname></class>
+      </classes>
+    </connection>
+  </connections>
+
+  <config>
+    <documentation file="www/documentation.html"/>
+    <script file="driver.lua"/>
+
+    <actions>
+      <action><name>Reconnect to Master</name><command>Reconnect</command></action>
+      <action><name>Refresh Stream URLs</name><command>RefreshStreams</command></action>
+      <action><name>Simulate Doorbell Ring</name><command>TestRing</command></action>
+      <action><name>Print Stream URLs to Lua Output</name><command>PrintUrls</command></action>
+    </actions>
+
+    <events>
+      <event><id>1</id><name>Doorbell Pressed</name><description>Doorbell button pressed (after ring cooldown)</description></event>
+      <event><id>2</id><name>Motion Started</name><description>Camera detected motion</description></event>
+      <event><id>3</id><name>Motion Ended</name><description>Motion ended</description></event>
+      <event><id>4</id><name>Person Detected</name><description>Smart detection: person</description></event>
+      <event><id>5</id><name>Vehicle Detected</name><description>Smart detection: vehicle</description></event>
+      <event><id>6</id><name>Animal Detected</name><description>Smart detection: animal</description></event>
+      <event><id>7</id><name>Package Detected</name><description>Smart detection: package</description></event>
+      <event><id>8</id><name>License Plate Detected</name><description>Smart detection: license plate</description></event>
+      <event><id>9</id><name>Face Detected</name><description>Smart detection: face</description></event>
+      <event><id>10</id><name>Line Crossed</name><description>Smart detection line crossed</description></event>
+      <event><id>11</id><name>Audio Detected</name><description>Smart audio detection (alarm sound, glass break, barking...)</description></event>
+      <event><id>12</id><name>Smart Detection</name><description>Any smart detection</description></event>
+      <event><id>13</id><name>Camera Online</name><description>Camera connected to Protect</description></event>
+      <event><id>14</id><name>Camera Offline</name><description>Camera disconnected from Protect</description></event>
+      <event><id>15</id><name>Playback Started</name><description>Camera view switched to a recording</description></event>
+      <event><id>16</id><name>Playback Stopped</name><description>Camera view returned to live</description></event>
+    </events>
+
+    <commands>
+      <command>
+        <name>Go Live</name>
+        <description>Return NAME to live view</description>
+      </command>
+      <command>
+        <name>Play Last Event</name>
+        <description>Play the most recent NAME event recording</description>
+      </command>
+      <command>
+        <name>Play Last Ring</name>
+        <description>Play the most recent NAME doorbell ring recording</description>
+      </command>
+      <command>
+        <name>Play Minutes Ago</name>
+        <description>Play NAME recording from PARAM1 minutes ago</description>
+        <params>
+          <param><name>Minutes</name><type>RANGED_INTEGER</type><minimum>1</minimum><maximum>1440</maximum><default>5</default></param>
+        </params>
+      </command>
+      <command>
+        <name>Refresh Event History</name>
+        <description>Refresh NAME event history</description>
+      </command>
+      <command>
+        <name>Set Doorbell Message</name>
+        <description>Show PARAM1 on NAME display for PARAM2 minutes (0 = until cleared)</description>
+        <params>
+          <param><name>Message</name><type>STRING</type><default>Be right there</default></param>
+          <param><name>Minutes</name><type>RANGED_INTEGER</type><minimum>0</minimum><maximum>1440</maximum><default>5</default></param>
+        </params>
+      </command>
+      <command>
+        <name>Doorbell Message Preset</name>
+        <description>Show PARAM1 on NAME display for PARAM2 minutes (0 = until cleared)</description>
+        <params>
+          <param>
+            <name>Message</name>
+            <type>LIST</type>
+            <items>
+              <item>Leave Package at Door</item>
+              <item>Do Not Disturb</item>
+            </items>
+            <default>Leave Package at Door</default>
+          </param>
+          <param><name>Minutes</name><type>RANGED_INTEGER</type><minimum>0</minimum><maximum>1440</maximum><default>30</default></param>
+        </params>
+      </command>
+      <command>
+        <name>Clear Doorbell Message</name>
+        <description>Clear NAME display message</description>
+      </command>
+      <command>
+        <name>PTZ Go To Preset</name>
+        <description>Move NAME to PTZ preset slot PARAM1</description>
+        <params>
+          <param><name>Slot</name><type>RANGED_INTEGER</type><minimum>-1</minimum><maximum>15</maximum><default>0</default></param>
+        </params>
+      </command>
+      <command>
+        <name>Set Microphone Volume</name>
+        <description>Set NAME microphone volume to PARAM1</description>
+        <params>
+          <param><name>Volume</name><type>RANGED_INTEGER</type><minimum>0</minimum><maximum>100</maximum><default>50</default></param>
+        </params>
+      </command>
+      <command>
+        <name>Set Status Light</name>
+        <description>Turn NAME status light PARAM1</description>
+        <params>
+          <param>
+            <name>State</name>
+            <type>LIST</type>
+            <items><item>On</item><item>Off</item></items>
+            <default>Off</default>
+          </param>
+        </params>
+      </command>
+    </commands>
+
+    <properties>
+      <property>
+        <name>Driver Version</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Connection Status</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>Waiting for UniFi Protect master driver</default>
+      </property>
+      <property>
+        <name>Protect Device</name>
+        <type>DYNAMIC_LIST</type>
+        <readonly>false</readonly>
+        <tooltip>Camera or doorbell in UniFi Protect</tooltip>
+      </property>
+      <property>
+        <name>Device Name</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Device Type</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+
+      <property>
+        <name>Video</name>
+        <type>LABEL</type>
+        <default>Video</default>
+      </property>
+      <property>
+        <name>Preferred Stream</name>
+        <type>LIST</type>
+        <items>
+          <item>Auto</item>
+          <item>High</item>
+          <item>Medium</item>
+          <item>Low</item>
+        </items>
+        <default>Auto</default>
+        <tooltip>Auto picks by the Navigator's requested size (tiles get Low, full screen gets High)</tooltip>
+      </property>
+      <property>
+        <name>Stream Codec</name>
+        <type>LIST</type>
+        <items>
+          <item>H.264</item>
+          <item>H.265</item>
+        </items>
+        <default>H.264</default>
+        <tooltip>Set H.265 only if the camera uses Enhanced Encoding in Protect</tooltip>
+      </property>
+      <property>
+        <name>MJPEG Fallback</name>
+        <type>LIST</type>
+        <items><item>Yes</item><item>No</item></items>
+        <default>Yes</default>
+      </property>
+      <property>
+        <name>RTSP URL (High)</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+
+      <property>
+        <name>Recordings</name>
+        <type>LABEL</type>
+        <default>Event History and Playback</default>
+      </property>
+      <property>
+        <name>History Filter</name>
+        <type>LIST</type>
+        <items>
+          <item>All Events</item>
+          <item>Rings and Smart Detections</item>
+          <item>Rings Only</item>
+        </items>
+        <default>All Events</default>
+      </property>
+      <property>
+        <name>History Hours</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>720</maximum>
+        <default>24</default>
+      </property>
+      <property>
+        <name>History Events</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>5</minimum>
+        <maximum>50</maximum>
+        <default>20</default>
+      </property>
+      <property>
+        <name>Playback Pre-Roll (seconds)</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>0</minimum>
+        <maximum>60</maximum>
+        <default>5</default>
+      </property>
+      <property>
+        <name>Playback Timeout (minutes)</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>0</minimum>
+        <maximum>120</maximum>
+        <default>15</default>
+        <tooltip>Return to live automatically after this long (0 = never)</tooltip>
+      </property>
+      <property>
+        <name>Playback FPS</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>5</maximum>
+        <default>2</default>
+      </property>
+      <property>
+        <name>Playback Status</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default>Live</default>
+      </property>
+
+      <property>
+        <name>Doorbell</name>
+        <type>LABEL</type>
+        <default>Doorbell</default>
+      </property>
+      <property>
+        <name>Doorbell Mode</name>
+        <type>LIST</type>
+        <items>
+          <item>Auto</item>
+          <item>Doorbell</item>
+          <item>Camera</item>
+        </items>
+        <default>Auto</default>
+      </property>
+      <property>
+        <name>Ring Cooldown (seconds)</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>0</minimum>
+        <maximum>120</maximum>
+        <default>10</default>
+        <tooltip>Repeated presses inside this window do not fire Doorbell Pressed again (stops announcement spam)</tooltip>
+      </property>
+      <property>
+        <name>Ringing Hold (seconds)</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>300</maximum>
+        <default>15</default>
+      </property>
+      <property>
+        <name>Contact Pulse (seconds)</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>1</minimum>
+        <maximum>30</maximum>
+        <default>2</default>
+      </property>
+      <property>
+        <name>Doorbell Custom Messages</name>
+        <type>STRING</type>
+        <default>Be right there;Please wait</default>
+        <tooltip>Semicolon separated messages offered in the Extras tab (30 characters max each)</tooltip>
+      </property>
+      <property>
+        <name>Doorbell Message Minutes</name>
+        <type>RANGED_INTEGER</type>
+        <minimum>0</minimum>
+        <maximum>1440</maximum>
+        <default>10</default>
+        <tooltip>How long Extras-tab messages stay on the doorbell (0 = until cleared)</tooltip>
+      </property>
+
+      <property>
+        <name>Activity</name>
+        <type>LABEL</type>
+        <default>Activity</default>
+      </property>
+      <property>
+        <name>Last Ring</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Last Motion</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Last Detection</name>
+        <type>STRING</type>
+        <readonly>true</readonly>
+        <default></default>
+      </property>
+      <property>
+        <name>Debug Logging</name>
+        <type>LIST</type>
+        <items><item>Off</item><item>On</item></items>
+        <default>Off</default>
+      </property>
+    </properties>
+  </config>
+</devicedata>
