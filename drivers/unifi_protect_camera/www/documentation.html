@@ -1,0 +1,86 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>UniFi Protect Camera / Doorbell</title>
+<style>
+ body{font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.45;color:#1d2733;margin:16px;max-width:900px}
+ h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:20px 0 6px;border-bottom:1px solid #d5dde6;padding-bottom:3px}
+ h3{font-size:13px;margin:14px 0 4px} code{background:#eef2f6;padding:1px 4px;border-radius:3px}
+ table{border-collapse:collapse;margin:6px 0} td,th{border:1px solid #d5dde6;padding:4px 8px;text-align:left;vertical-align:top}
+ th{background:#f2f5f8} .note{background:#fff7e0;border:1px solid #f0d58a;padding:8px 10px;border-radius:4px}
+ .sub{color:#5b6b7c}
+</style>
+</head><body>
+<h1>UniFi Protect Camera / Doorbell</h1>
+<div class="sub">UniFi Protect for Control4 &middot; version 1.0.1 &middot; Open Source (MIT). Not affiliated with Ubiquiti Inc. or Snap One LLC.</div>
+
+<h2>Setup</h2>
+<ol>
+<li>Add the driver to the room where the camera should appear (Navigator <i>Cameras</i>).</li>
+<li>Pick the camera or doorbell in <code>Protect Device</code>. <code>Connection Status</code> turns to <i>Connected</i>.</li>
+<li>Optional: bind the <code>Doorbell Button</code>, <code>Motion</code> or <code>Smart Detection</code> contact outputs to stock
+contact drivers (for example the Control4 <i>Doorbell</i> contact driver) if you want their icons and history.</li>
+</ol>
+
+<h2>Live video</h2>
+<p>Navigators receive High, Medium and Low RTSP streams and pick the right one by tile size
+(<code>Preferred Stream</code> = Auto). A controller-served MJPEG stream is offered as a fallback.
+Set <code>Stream Codec</code> to H.265 only when the camera uses Enhanced Encoding in Protect.</p>
+
+<h2>Event history and recorded playback</h2>
+<p>Requires <code>Local Username</code>/<code>Local Password</code> on the master. Open the camera in Navigator, then the <b>Extras</b> tab:</p>
+<ul>
+<li><b>Play Recent Event</b> &ndash; the latest rings, motion and smart detections (window and count set by <code>History Hours</code>,
+<code>History Events</code>, <code>History Filter</code>). Picking one switches the camera view to the recording, starting
+<code>Playback Pre-Roll</code> seconds before the event.</li>
+<li><b>Play From</b> &ndash; jump back 30 seconds to 24 hours.</li>
+<li><b>Playback Speed</b> &ndash; 1x, 2x, 4x or 8x.</li>
+<li><b>Back to Live</b> &ndash; return to the live stream. Playback also returns to live after <code>Playback Timeout</code>.</li>
+</ul>
+<p>Playback is delivered as MJPEG built from frames on the Protect timeline, so it runs at a low frame rate (Playback FPS) without audio.
+It is meant for checking what happened, not as a replacement for the Protect app's full player.
+Re-open the camera view if a Navigator keeps showing the previous stream.</p>
+
+<h2>Doorbells and announcements</h2>
+<p>Doorbells are detected automatically (or set <code>Doorbell Mode</code>). On every ring the driver:</p>
+<ul>
+<li>fires the <b>Doorbell Pressed</b> event (repeat presses inside <code>Ring Cooldown</code> are ignored so announcements do not stack up),</li>
+<li>sets <code>RINGING</code> true for <code>Ringing Hold</code> seconds and updates <code>LAST_RING</code>, <code>RING_COUNT</code> and <code>LAST_EVENT_THUMBNAIL_URL</code>,</li>
+<li>pulses the <code>Doorbell Button</code> contact output.</li>
+</ul>
+<p><b>Announcement example</b>: Programming &rsaquo; select this camera &rsaquo; <i>When Doorbell Pressed</i> &rsaquo; drag your
+<i>Announcement</i> (Agents &rsaquo; Announcements, e.g. "Someone is at the front door") into the script. Add a camera pop-up or
+push notification in the same script if you like.</p>
+<p>Doorbell display messages: Extras &rsaquo; Doorbell Display Message (presets plus <code>Doorbell Custom Messages</code>),
+or the programming commands <i>Set Doorbell Message</i>, <i>Doorbell Message Preset</i>, <i>Clear Doorbell Message</i>.</p>
+
+<h2>Programming</h2>
+<table>
+<tr><th>Events</th><td>Doorbell Pressed, Motion Started, Motion Ended, Person / Vehicle / Animal / Package / License Plate / Face Detected,
+Line Crossed, Audio Detected, Smart Detection, Camera Online, Camera Offline, Playback Started, Playback Stopped</td></tr>
+<tr><th>Commands</th><td>Go Live, Play Last Event, Play Last Ring, Play Minutes Ago, Refresh Event History, Set Doorbell Message,
+Doorbell Message Preset, Clear Doorbell Message, PTZ Go To Preset, Set Microphone Volume, Set Status Light</td></tr>
+<tr><th>Variables</th><td>ONLINE, RINGING, MOTION, PLAYBACK_ACTIVE, LAST_RING, RING_COUNT, LAST_MOTION, LAST_DETECTION,
+LAST_DETECTION_TIME, LAST_EVENT_THUMBNAIL_URL, SNAPSHOT_URL, LIVE_MJPEG_URL</td></tr>
+</table>
+
+<h2>The driver set</h2>
+<table>
+<tr><th>Driver</th><th>Purpose</th></tr>
+<tr><td><b>UniFi Protect</b> (unifi_protect.c4z)</td><td>Master. Connects to the console, keeps the realtime event streams open and serves all children. Add one per Protect console.</td></tr>
+<tr><td><b>UniFi Protect Camera</b></td><td>One per camera or doorbell. Live video, snapshots, event history and recorded playback, doorbell ring events.</td></tr>
+<tr><td><b>UniFi Protect Entry Sensor</b></td><td>SuperLink Entry / Recessed Entry. Door contact output, light automation.</td></tr>
+<tr><td><b>UniFi Protect Motion Sensor</b></td><td>SuperLink Motion, Glass Break and All-In-One. Motion / glass break outputs, light automation.</td></tr>
+<tr><td><b>UniFi Protect Environmental Sensor</b></td><td>SuperLink Environmental. Temperature and humidity (Comfort tile + value outputs), water leak.</td></tr>
+<tr><td><b>UniFi Protect Smoke CO Alarm</b></td><td>SuperLink Smoke and CO Alarm. Smoke / CO outputs and events.</td></tr>
+<tr><td><b>UniFi Protect Siren</b></td><td>SuperLink Siren / Siren PoE. Sound, stop and test from programming.</td></tr>
+</table>
+<p>Child drivers find the master automatically when there is exactly one master in the project.
+With several consoles, bind each child's <code>UniFi Protect</code> connection to the right master.
+Then pick the device in the child's <code>Protect Device</code> property.</p>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li>Child says <i>Waiting for UniFi Protect master driver</i>: add the master, or bind the child's <code>UniFi Protect</code> connection when
+there is more than one master.</li>
+<li>No video but snapshots work: make sure Navigators can reach the console on TCP 7447 (RTSP) and try <code>Preferred Stream</code> = Low.</li>
+<li>Run the master's <i>Print Devices to Lua Output</i> action and set <code>Debug Logging</code> = On to see the traffic in the Lua tab.</li>
+</ul>
+</body></html>
