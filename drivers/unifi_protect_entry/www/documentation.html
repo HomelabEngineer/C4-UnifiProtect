@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>UniFi Protect Entry Sensor</title>
+<style>
+ body{font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.45;color:#1d2733;margin:16px;max-width:900px}
+ h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:20px 0 6px;border-bottom:1px solid #d5dde6;padding-bottom:3px}
+ h3{font-size:13px;margin:14px 0 4px} code{background:#eef2f6;padding:1px 4px;border-radius:3px}
+ table{border-collapse:collapse;margin:6px 0} td,th{border:1px solid #d5dde6;padding:4px 8px;text-align:left;vertical-align:top}
+ th{background:#f2f5f8} .note{background:#fff7e0;border:1px solid #f0d58a;padding:8px 10px;border-radius:4px}
+ .sub{color:#5b6b7c}
+</style>
+</head><body>
+<h1>UniFi Protect Entry Sensor</h1>
+<div class="sub">UniFi Protect for Control4 &middot; version 1.0.1 &middot; Open Source (MIT). Not affiliated with Ubiquiti Inc. or Snap One LLC.</div>
+
+<h2>Setup</h2>
+<ol>
+<li>Pick the sensor in <code>Protect Device</code>.</li>
+<li>Bind <code>Door / Window Contact</code> to a stock contact driver (Door Contact Sensor, Window Contact Sensor,
+Garage Door Sensor or Gate) to get Navigator icons, history and the usual programming.</li>
+</ol>
+
+<h2>Light automation</h2>
+<p>Pick lights in <code>Linked Lights</code>. When the sensor opens they turn on at <code>Light Level</code>; when it closes,
+they turn off after <code>Lights Off Delay</code> (set <code>Turn Lights Off</code> = No to leave them on).
+With <code>Only Turn Off Lights It Turned On</code> = Yes, lights that were already on are left alone.
+A new trigger during the delay cancels the pending off.</p>
+<p>Programming commands <i>Enable Light Automation</i> / <i>Disable Light Automation</i> (variable <code>LIGHT_AUTOMATION</code>) let you
+limit it, for example to night time with a scheduled event. For anything more conditional, leave <code>Linked Lights</code> empty
+and use the driver's events in programming instead.</p>
+
+<h2>Programming</h2>
+<table>
+<tr><th>Events</th><td>Opened, Closed, Left Open (after <code>Left Open Alert</code> minutes), Alarm Triggered, Battery Low, Tamper Detected,
+Tamper Cleared, Sensor Online, Sensor Offline</td></tr>
+<tr><th>Variables</th><td>IS_OPEN, LAST_CHANGED, LIGHT_AUTOMATION, ONLINE, BATTERY_PERCENT, BATTERY_LOW, TAMPERED</td></tr>
+<tr><th>Connections</th><td>Door / Window Contact (CONTACT_SENSOR, closed = door closed), Tamper (closed = tampered)</td></tr>
+</table>
+
+<h2>The driver set</h2>
+<table>
+<tr><th>Driver</th><th>Purpose</th></tr>
+<tr><td><b>UniFi Protect</b> (unifi_protect.c4z)</td><td>Master. Connects to the console, keeps the realtime event streams open and serves all children. Add one per Protect console.</td></tr>
+<tr><td><b>UniFi Protect Camera</b></td><td>One per camera or doorbell. Live video, snapshots, event history and recorded playback, doorbell ring events.</td></tr>
+<tr><td><b>UniFi Protect Entry Sensor</b></td><td>SuperLink Entry / Recessed Entry. Door contact output, light automation.</td></tr>
+<tr><td><b>UniFi Protect Motion Sensor</b></td><td>SuperLink Motion, Glass Break and All-In-One. Motion / glass break outputs, light automation.</td></tr>
+<tr><td><b>UniFi Protect Environmental Sensor</b></td><td>SuperLink Environmental. Temperature and humidity (Comfort tile + value outputs), water leak.</td></tr>
+<tr><td><b>UniFi Protect Smoke CO Alarm</b></td><td>SuperLink Smoke and CO Alarm. Smoke / CO outputs and events.</td></tr>
+<tr><td><b>UniFi Protect Siren</b></td><td>SuperLink Siren / Siren PoE. Sound, stop and test from programming.</td></tr>
+</table>
+<p>Child drivers find the master automatically when there is exactly one master in the project.
+With several consoles, bind each child's <code>UniFi Protect</code> connection to the right master.
+Then pick the device in the child's <code>Protect Device</code> property.</p>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li>Child says <i>Waiting for UniFi Protect master driver</i>: add the master, or bind the child's <code>UniFi Protect</code> connection when
+there is more than one master.</li>
+<li>No video but snapshots work: make sure Navigators can reach the console on TCP 7447 (RTSP) and try <code>Preferred Stream</code> = Low.</li>
+<li>Run the master's <i>Print Devices to Lua Output</i> action and set <code>Debug Logging</code> = On to see the traffic in the Lua tab.</li>
+</ul>
+</body></html>
