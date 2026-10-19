@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>UniFi Protect (Master)</title>
+<style>
+ body{font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.45;color:#1d2733;margin:16px;max-width:900px}
+ h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:20px 0 6px;border-bottom:1px solid #d5dde6;padding-bottom:3px}
+ h3{font-size:13px;margin:14px 0 4px} code{background:#eef2f6;padding:1px 4px;border-radius:3px}
+ table{border-collapse:collapse;margin:6px 0} td,th{border:1px solid #d5dde6;padding:4px 8px;text-align:left;vertical-align:top}
+ th{background:#f2f5f8} .note{background:#fff7e0;border:1px solid #f0d58a;padding:8px 10px;border-radius:4px}
+ .sub{color:#5b6b7c}
+</style>
+</head><body>
+<h1>UniFi Protect (Master)</h1>
+<div class="sub">UniFi Protect for Control4 &middot; version 1.0.1 &middot; Open Source (MIT). Not affiliated with Ubiquiti Inc. or Snap One LLC.</div>
+
+<h2>The driver set</h2>
+<table>
+<tr><th>Driver</th><th>Purpose</th></tr>
+<tr><td><b>UniFi Protect</b> (unifi_protect.c4z)</td><td>Master. Connects to the console, keeps the realtime event streams open and serves all children. Add one per Protect console.</td></tr>
+<tr><td><b>UniFi Protect Camera</b></td><td>One per camera or doorbell. Live video, snapshots, event history and recorded playback, doorbell ring events.</td></tr>
+<tr><td><b>UniFi Protect Entry Sensor</b></td><td>SuperLink Entry / Recessed Entry. Door contact output, light automation.</td></tr>
+<tr><td><b>UniFi Protect Motion Sensor</b></td><td>SuperLink Motion, Glass Break and All-In-One. Motion / glass break outputs, light automation.</td></tr>
+<tr><td><b>UniFi Protect Environmental Sensor</b></td><td>SuperLink Environmental. Temperature and humidity (Comfort tile + value outputs), water leak.</td></tr>
+<tr><td><b>UniFi Protect Smoke CO Alarm</b></td><td>SuperLink Smoke and CO Alarm. Smoke / CO outputs and events.</td></tr>
+<tr><td><b>UniFi Protect Siren</b></td><td>SuperLink Siren / Siren PoE. Sound, stop and test from programming.</td></tr>
+</table>
+<p>Child drivers find the master automatically when there is exactly one master in the project.
+With several consoles, bind each child's <code>UniFi Protect</code> connection to the right master.
+Then pick the device in the child's <code>Protect Device</code> property.</p>
+
+<h2>Setup</h2>
+<ol>
+<li><b>API key</b> &ndash; In UniFi OS open <i>Settings &rsaquo; Control Plane &rsaquo; Integrations</i> and create an API key.
+Paste it into <code>API Key</code>. Requires UniFi Protect 6.0 or newer.</li>
+<li>Set <code>Console Address</code> to the console / NVR IP (port 443 unless changed).
+<code>Connection Status</code> shows <i>Connected - Protect x.y.z</i> and <code>Realtime Events</code> shows <i>Connected</i>.</li>
+<li><b>History and playback (optional)</b> &ndash; Create a <i>local</i> UniFi OS user with view access to Protect
+(not a UI.com cloud account with MFA) and enter it in <code>Local Username</code> / <code>Local Password</code>.
+Protect only offers event history and recorded footage through this login; API keys cannot read them.
+<code>Recordings Access</code> confirms it works.</li>
+<li>Add the child drivers you need (see below).</li>
+</ol>
+
+<h2>Video and the media server</h2>
+<p>Live video goes straight from the console to Navigators over RTSP (port 7447, or RTSPS 7441).
+The master turns on the RTSPS streams for each camera through the Integration API automatically.</p>
+<p>Snapshots, the MJPEG fallback stream and recorded playback come from a small media server inside the master
+driver (default port <code>8641</code> on the controller). Navigators never need Protect credentials. URLs carry a random
+access token. If the controller has more than one address, set <code>Media Server Address</code> to the one Navigators can reach.</p>
+<div class="note">Remote (off-site) Navigators can only show video if they can reach the console and controller addresses,
+for example over a VPN.</div>
+
+<h2>Properties</h2>
+<table>
+<tr><th>Property</th><th>Notes</th></tr>
+<tr><td>Stream Transport</td><td>RTSP works on every Navigator. RTSPS is encrypted but not supported by every client.</td></tr>
+<tr><td>Snapshot Quality</td><td>High asks Protect for full-resolution snapshots (slower).</td></tr>
+<tr><td>Live MJPEG FPS / Playback FPS</td><td>Frame rate of the MJPEG fallback and of recorded playback (1-5).</td></tr>
+<tr><td>Media Server Port</td><td>TCP port on the controller (default 8641).</td></tr>
+</table>
+
+<h2>Programming</h2>
+<p>Events: <i>Console Online</i>, <i>Console Offline</i>, <i>Any Doorbell Ring</i> (variable <code>LAST_RING_CAMERA</code> holds the doorbell name).</p>
+<p>Actions: Reconnect, Refresh Devices, Recreate Camera Streams, Find Child Drivers, Print Devices to Lua Output.</p>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li>Child says <i>Waiting for UniFi Protect master driver</i>: add the master, or bind the child's <code>UniFi Protect</code> connection when
+there is more than one master.</li>
+<li>No video but snapshots work: make sure Navigators can reach the console on TCP 7447 (RTSP) and try <code>Preferred Stream</code> = Low.</li>
+<li>Run the master's <i>Print Devices to Lua Output</i> action and set <code>Debug Logging</code> = On to see the traffic in the Lua tab.</li>
+</ul>
+</body></html>
